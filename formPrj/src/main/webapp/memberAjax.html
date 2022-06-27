@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>memberAjax.html</title>
+<style>
+form {
+	border: 2px solid green;
+}
+
+form>label {
+	display: inline-block;
+	width: 25%;
+	background-color: yellow;
+}
+
+#memberName {
+	background-color: aqua;
+}
+
+input[name="phone"] {
+	background-color: aquamarine;
+}
+
+form>input:nth-of-type(4) {
+	color: red;
+}
+</style>
+</head>
+<body>
+	<form action="member" name="memberFrm">
+		<label for="memberNo">회원번호</label> 
+		<input type="number"name="memberNo" id="memberNo" readonly><br> 
+		<label for="memberName">회원이름</label> 
+		<input type="text" name="memberName" id="memberName"><br> 
+		<label for="phone">연락처</label> 
+		<input type="text" name="phone" id="phone"><br> 
+		<label for="adress">주소</label> 
+		<input type="text" name="adress" id="adress"><br>
+		<label for="birth">생년월일</label> 
+		<input type="date" name="birth" id="birth"><br> 
+		<label for="image">사진</label> 
+		<input type="file" name="image" id="image"><br> 
+		
+		<input type="submit" value="추가"> 
+		<input type="reset" value="초기화">
+		<input type="button" value="선택삭제" id="deleteSel">
+		<input type="button" value="수정" id="modify">
+	</form>
+
+	<div id="show">
+		<table border="1">
+			<thead>
+				<tr>
+					<th>회원번호</th>
+					<th>회원이름</th>
+					<th>연락처</th>
+					<th>주소</th>
+					<th>생년월일</th>
+					<th>사진</th>
+					<th>삭제</th>
+					<th>선택</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+	
+	<script>
+	    // Run As시 나타남.
+	    let ajax = new XMLHttpRequest();
+	    ajax.open('get', 'member?cmd=list');
+	    ajax.send();
+	    ajax.onload = function () {
+	    	let data = JSON.parse(this.responseText)
+	    	
+	    	let tbody = document.querySelector('#show tbody');
+	    	data.forEach(member => {
+	    		tbody.append(makeTr(member));
+	    	})
+	    }
+	    
+	    // 추가버튼 클릭시 나타남.
+	    document.forms.memberFrm.addEventListener('submit', function(e) {
+	    	e.preventDefault();
+	    	console.log(this);
+	    	let mNo = this.memberNo.value; // 넘어가는 파라메타
+	    	let mNm = this.memberName.value;
+	    	let mAr = this.adress.value;
+	    	let mPh = this.phone.value;
+	    	let mBi = this.birth.value;
+	    	
+	    	let xhtp = new XMLHttpRequest();
+	    	xhtp.open('post', 'member'); // 요청방식 post: 매개값이 몸체에 담겨서 넘어감.
+	    	xhtp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	    	xhtp.send(`name=${mNm}&addr=${mAr}&phone=${mPh}&birth=${mBi}&cmd=add`);
+	    	xhtp.onload = function() {
+	    		let result = JSON.parse(this.responseText); // this: xhtp가리킴.
+	    		console.log(result);
+	    		document.querySelector('#show tbody').append(makeTr(result)); // result : 오브젝트 타입.
+	    	}
+	    	
+	    })
+	    let fields = ['membNo', 'membName', 'membPhone', 'membAddr', 'membBirth', 'membImage'];
+	    //회원정보 => tr생성.
+	    function makeTr(member) {
+	    	let tr = document.createElement('tr');
+	    	tr.setAttribute('id', member.membNo); // tr의 attribute중에 id 를 활용.
+	    	tr.addEventListener('click', showTr);
+	    	fields.forEach(field => {
+	    		let td = document.createElement('td');
+	    		// null, 0, undefind, '' => false 이외 true;
+	    		td.innerHTML = member[field] ? member[field] : (!'' ? field == 'membImage' ? 'no img' : '' : '');
+	    		tr.append(td);
+	    	})
+	    	// 삭제버튼
+	    	let btn = document.createElement('button');
+	    	btn.innerHTML = '삭제';
+	    	btn.addEventListener('click', rowDelete, false); // bubble, capture 
+	    	let td = document.createElement('td');
+	    	td.append(btn);
+	    	tr.append(td);
+	    	
+	    	// 체크박스. input type='checkbox'
+	    	let chk = document.createElement('input');
+	    	chk.setAttribute('type', 'checkbox');
+	    	td = document.createElement('td');
+	    	td.append(chk);
+	    	tr.append(td);
+	    	return tr;
+	    }
+	    
+	    // tr 클릭하면 form 요소 보여주기.
+	    function showTr() {
+	    	// 선택한 tr의 자식요소 => form에 보여주기.  
+	    	console.log(this.children[4].innerHTML.substring(0, 10)); // this => tr 태그
+	    	document.getElementById('birth').value = this.children[4].innerHTML.substring(0, 10);
+	    	document.getElementById('memberNo').value = this.children[0].innerHTML;
+	    	document.getElementById('memberName').value = this.children[1].innerHTML;
+	    	document.getElementById('phone').value = this.children[2].innerHTML;
+	    	document.getElementById('adress').value = this.children[3].innerHTML;
+	    }
+	    
+	    // 삭제버튼 실행 콜백함수.
+	    function rowDelete() {
+	    	console.log(this.parentElement.parentElement.getAttribute('id'));
+	    	let delId = this.parentElement.parentElement.getAttribute('id');
+	    	let delAjax = new XMLHttpRequest();
+	    	delAjax.open('post', 'member');
+	    	delAjax.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	    	delAjax.send(`cmd=remove&delNo=${delId}`);
+	    	delAjax.onload = function() {
+	    		let result = JSON.parse(delAjax.responseText); // {retCod: Success/ Fail}
+	    		// 결과값 Success = 화면에서 제거, 아니면 에러 메세지 도출
+	    		if (result.retCod == 'Success') {
+	    			alert('정상적으로 처리!')
+	    			document.getElementById(delId).remove();	    		
+	    			} else {
+	    			alert('처리중 에러발생!')
+	    		}
+	    	}
+	    }
+	    
+	    // 선택삭제
+	    document.getElementById('deleteSel').addEventListener('click', deleteSelected);
+	    
+	    // 선택삭제 콜백함수
+	    function deleteSelected() {
+	    	// 체크 true
+	    	let checkAll = document.querySelectorAll('tbody > tr > td > input:checked');
+	    	checkAll.forEach(elem => {
+	    		// rowDelete 함수와 기능이 같음.
+	    		let delId = elem.parentElement.parentElement.getAttribute('id');
+	    		// ajax 호출 : db삭제 및 화면에서 삭제.
+	    		let delAjax = new XMLHttpRequest();
+	    		delAjax.open('post','member'); // 요청방식 post: 매개값이 몸체에 담겨서 넘어감.
+	    		delAjax.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	    		delAjax.send(`cmd=remove&delNo=${delId}`);
+	    		delAjax.onload = function() {
+	    			let result = JSON.parse(delAjax.responseText);
+	    			if (result.retCod == 'Success') {
+	    				alert('정상적으로 처리!')
+	    				document.getElementById(delId).remove();
+	    			} else {
+	    				alert('처리중 에러발생!')
+	    			}
+	    		}
+	    	});
+	    }
+	    
+	    // 수정버튼 클릭시.
+	    document.getElementById('modify').addEventListener('click', modifyFnc);
+	    // 수정 콜백힘수.
+	    function modifyFnc() {
+	    	let frm = document.forms.memberFrm;
+	    	let mNo = frm.memberNo.value; // 넘어가는 파라메타
+	    	let mNm = frm.memberName.value;
+	    	let mAr = frm.adress.value;
+	    	let mPh = frm.phone.value;
+	    	let mBi = frm.birth.value;
+	    	
+	    	let xhtp = new XMLHttpRequest();
+	    	xhtp.open('post', 'member'); // 요청방식 post: 매개값이 몸체에 담겨서 넘어감.
+	    	xhtp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); // post일 경우 header에 지정.
+	    	xhtp.send(`membNo=${mNo}&name=${mNm}&addr=${mAr}&phone=${mPh}&birth=${mBi}&cmd=modify`);
+	    	xhtp.onload = function() {
+	    		let result = JSON.parse(this.responseText); // {reCode: Success} //this: xhtp가리킴.
+	    			console.log(result);
+	    		if(result.retCod == 'Success') {
+	    			// 폼 화면에서 사용자 수정값 => 표 값으로 변경.
+	    			// id를 알고 있으니까 tr 선택해올 수 있음.
+	    			// 1) formToTable(mNo);
+	    			let newTr = makeTr(result);
+	    			let oldTr = document.getElementById(mNo);
+	                oldTr.parentNode.replaceChild(newTr, oldTr);
+	    		} else {
+	    			alert('에러발생!');
+	    		}
+	    	}
+	    }
+	    
+	    function formToTable(memberNo)  {
+	    	let tr = document.getElementBy(memberNo);
+			tr.children[0].innerHTML = document.getElementById('memberNo').value;
+			tr.children[1].innerHTML = document.getElementById('memberName').value;
+			tr.children[2].innerHTML = document.getElementById('phone').value;
+			tr.children[3].innerHTML = document.getElementById('adress').value;
+			tr.children[4].innerHTML = document.getElementById('birth').value;
+	    }
+	    
+	</script>	
+</body>
+</html>
