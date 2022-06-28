@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>promise.html</title>
+</head>
+
+<body>
+    <div id="show">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>회원번호</th>
+                    <th>회원이름</th>
+                    <th>연락처</th>
+                    <th>주소</th>
+                    <th>생년월일</th>
+                    <th>사진</th>
+                    <th>삭제</th>
+                    <th>선택</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        // promise 객체 => fetch 메소드 : pending상태 -> 정상실행: fullfilled, 정상실행x: rejected,  정상: then(), 에러발생: catch()
+        let promise = new Promise(function (resolve, reject) { // 객체안에 매개값으로 함수(function()) 들어감. //resolve:성공, reject:실패
+            setTimeout2(function () {
+                resolve('success'); //  resolve:콜백함수 //성공처리시 실행 success: 매개값(메세지)
+            }, 1000); //1000: 지연된 시간.
+        });
+
+        promise
+            .then(function (result) {
+                console.log(result);
+            }) // 성공 했을 때 
+            .catch(function (error) {
+                console.error(error);
+            }) //실패 했을 때
+
+        function asyncwork(value) {
+            return new Promise(function (resolve, reject) {
+                setTimeout(function () {
+                    value -= 20;
+                    if (value > 50) {
+                        resolve(value);
+                    } else {
+                        reject(value);
+                    }
+                }, 1000);
+            });
+        }
+
+        asyncwork(100)
+            .then(function (value) {
+                console.log(value);
+                return asyncwork(value);
+            })
+            .then(function (value) {
+                console.log(value);
+                return asyncwork(value);
+            })
+            .then(function (value) {
+                console.log(value);
+                return asyncwork(value);
+            })
+            .then(function (value) {
+                console.log(value);
+                return asyncwork(value);
+            })
+            .catch(function (error) {
+                console.log('catch' + error);
+            })
+
+        // get 방식.
+        fetch('member?cmd=list') // json
+            .then(function (result) {
+                return result.json(); // text형식 -> json형태의 객체
+            })
+            .then(function (result) {
+                let tbody = document.querySelector('#show tbody');
+                result.forEach(member => {
+                    tbody.append(makeTr(member));
+                })
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+
+        let fields = ['membNo', 'membName', 'membPhone', 'membAddr', 'membBirth', 'membImage'];
+
+        //회원정보 => tr생성.
+        function makeTr(member) {
+            let tr = document.createElement('tr');
+            tr.setAttribute('id', member.membNo); // tr의 attribute중에 id 를 활용.
+            //tr.addEventListener('click', showTr);
+            fields.forEach(field => {
+                let td = document.createElement('td');
+                // null, 0, undefind, '' => false 이외 true;
+                td.innerHTML = member[field] ? member[field] : (!'' ? field == 'membImage' ? 'no img' : '' :
+                '');
+                tr.append(td);
+            })
+            // 삭제버튼
+            let btn = document.createElement('button');
+            btn.innerHTML = '삭제';
+            //btn.addEventListener('click', rowDelete, false); // bubble, capture 
+            let td = document.createElement('td');
+            td.append(btn);
+            tr.append(td);
+
+            // 체크박스. input type='checkbox'
+            let chk = document.createElement('input');
+            chk.setAttribute('type', 'checkbox');
+            td = document.createElement('td');
+            td.append(chk);
+            tr.append(td);
+            return tr;
+        }
+    </script>
+
+</body>
+
+</html>

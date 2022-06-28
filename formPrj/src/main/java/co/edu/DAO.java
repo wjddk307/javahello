@@ -14,7 +14,7 @@ public class DAO { // db에 접근하여 경로 만들어줌(통로역할)
 	public void getConnect() { // getConnect 실행되면 DriverManager가 conn무조건 생성
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");  // DriverManager
-			conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "scott", "tiger"); //jdbc의 주소
+			conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "hr", "hr"); //jdbc의 주소
 		} catch (ClassNotFoundException | SQLException e) { // conn : select ,update등 수행
 			e.printStackTrace();
 		}

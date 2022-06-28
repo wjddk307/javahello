@@ -98,7 +98,7 @@ public class MemberServlet extends HttpServlet { // Servlet: 화면 요청 들�
 		vo.setMembName(membName);
 		vo.setMembAddr(membAddr);
 		vo.setMembPhone(membPhon);
-		vo.setMemBirth(membBirt);
+		vo.setMembBirth(membBirt);
 		vo.setMembImage(membImag);
 		
 		MemberDAO dao = new MemberDAO();

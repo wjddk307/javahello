@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset="UTF-8">
 
 <title>fileUpload.html</title>
@@ -26,8 +28,11 @@ input[name="phone"] {
 form>input:nth-of-type(4) { 
 	color: red;
 }
-</style>
+   </style>
+
+   <script src="upload.js"></script>
 </head>
+
 <body>
 	<form action="memberUpload" name="memberFrm" method="post" enctype="multipart/form-data"> 
 		<label for="memberNo">회원번호</label> 
@@ -56,6 +61,7 @@ form>input:nth-of-type(4) {
 
 	<div id="show">
 		<table border="1">
+		<!--  <caption>회원리스트</caption>-->
 			<thead>
 				<tr>
 					<th>회원번호</th>
@@ -73,52 +79,6 @@ form>input:nth-of-type(4) {
 		</table>
 	</div>
 	
-	<script>
-	    // 리스트 출력.  // <body>에 method="post" enctype="multipart/form-data"로 변경.
-	    let ajax = new XMLHttpRequest();
-	    ajax.open('get', 'member?cmd=list');
-	    ajax.send();
-	    ajax.onload = function () {
-	    	let data = JSON.parse(this.responseText)
-	    	
-	    	let tbody = document.querySelector('#show tbody');
-	    	data.forEach(member => {
-	    		tbody.append(makeTr(member));
-	    	})
-	    }
-	    
-	    let fields = ['membNo', 'membName', 'membPhone', 'membAddr', 'membBirth', 'membImage'];
-	    
-	    //회원정보 => tr생성.
-	    function makeTr(member) {
-	    	let tr = document.createElement('tr');
-	    	tr.setAttribute('id', member.membNo); // tr의 attribute중에 id 를 활용.
-	    	//tr.addEventListener('click', showTr);
-	    	fields.forEach(field => {
-	    		let td = document.createElement('td');
-	    		// null, 0, undefind, '' => false 이외 true;
-	    		td.innerHTML = member[field] ? (field == 'membImage' ? '<img width="60px" src="images/' + member[field] +'">': member[field]) : '';
-	    		tr.append(td);
-	    	})
-	    	// 삭제버튼
-	    	let btn = document.createElement('button');
-	    	btn.innerHTML = '삭제';
-	    	//btn.addEventListener('click', rowDelete, false); // bubble, capture 
-	    	let td = document.createElement('td');
-	    	td.append(btn);
-	    	tr.append(td);
-	    	
-	    	// 체크박스. input type='checkbox'
-	    	let chk = document.createElement('input');
-	    	chk.setAttribute('type', 'checkbox');
-	    	td = document.createElement('td');
-	    	td.append(chk);
-	    	tr.append(td);
-	    	return tr;
-	    }
-	    
-	   
-	    
-	</script>	
+		
 </body>
 </html>

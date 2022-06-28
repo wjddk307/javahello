@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.oreilly.servlet.MultipartRequest;
@@ -30,8 +32,13 @@ public class MemberUpload extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) // doPost
 			throws ServletException, IOException {
+		
+		boolean isMulti = ServletFileUpload.isMultipartContent(request); //multipart요청인지 아닌지 체크해줌.
+	if(isMulti) {
+		
 	
     String mn = request.getParameter("memberName"); //application/x-www-form-urlencoded => multipart
+    
     System.out.println(mn);
 	String file = request.getServletContext().getRealPath("images");
 	int fileSize = 5 *1023 * 1024; // 5메가
@@ -51,7 +58,7 @@ public class MemberUpload extends HttpServlet {
 	MemberVO vo = new MemberVO();
 	vo.setMembAddr(ad);
 	vo.setMembImage(im);
-	vo.setMemBirth(bi);
+	vo.setMembBirth(bi);
 	vo.setMembName(mn);
 	vo.setMembPhone(ph);
 	
@@ -61,5 +68,20 @@ public class MemberUpload extends HttpServlet {
 	PrintWriter out = response.getWriter();
 	
 	dao.insertMember(vo);
+	// {"retCod": "Fullfilled"}
+	out.print("{\"retCod\": \"Fullfilled\"}");
+	} else {
+		String cmd = request.getParameter("cmd");
+		String id = request.getParameter("delId");
+		PrintWriter out = response.getWriter();
+		if(cmd.equals("delete")) {
+			MemberDAO dao = new MemberDAO();
+			if(dao.deleteMember(Integer.parseInt(id))) {
+				out.print("{\"retCod\": \"Success\"}");
+			} else {
+				out.print("{\"retCod\": \"Fail\"}");
+			};
+		}
 	}
-}
+	}
+	}

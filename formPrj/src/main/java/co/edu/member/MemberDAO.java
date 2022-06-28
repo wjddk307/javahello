@@ -19,7 +19,7 @@ public class MemberDAO extends co.edu.DAO {
 				mem.setMembName(rs.getString("memb_name")); // memb_name: 칼럼이름
 				mem.setMembPhone(rs.getString("memb_phone"));
 				mem.setMembAddr(rs.getString("memb_addr"));
-				mem.setMemBirth(rs.getString("memb_birth"));
+				mem.setMembBirth(rs.getString("memb_birth"));
 				mem.setMembImage(rs.getString("memb_image"));
 
 				list.add(mem);
@@ -138,7 +138,7 @@ public class MemberDAO extends co.edu.DAO {
 				mem.setMembName(rs.getString("memb_name")); // memb_name: 칼럼이름
 				mem.setMembPhone(rs.getString("memb_phone"));
 				mem.setMembAddr(rs.getString("memb_addr"));
-				mem.setMemBirth(rs.getString("memb_birth"));
+				mem.setMembBirth(rs.getString("memb_birth"));
 				mem.setMembImage(rs.getString("memb_image"));
 			}
 		} catch (SQLException e) {

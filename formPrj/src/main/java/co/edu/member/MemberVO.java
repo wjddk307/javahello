@@ -35,7 +35,7 @@ public class MemberVO {
 	public String getMembBirth() {
 		return membBirth;
 	}
-	public void setMemBirth(String memBirth) {
+	public void setMembBirth(String memBirth) {
 		this.membBirth = memBirth;
 	}
 	public String getMembImage() {
