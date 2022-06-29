@@ -142,7 +142,10 @@ public class MemberServlet extends HttpServlet { // Servlet: 화면 요청 들�
 		} else if (cmd.equals("remove")) {
 			String delNo = request.getParameter("delNo");
 			if(dao.deleteMember(Integer.parseInt(delNo))) {
-				out.print("{\"retCod\": \"Success\"}");
+				out.print("{\"retCod\": \"Success\"}"); // Json 
+				// object = {이름:권소정, 나이: 20}
+				out.print("retCode: success"); // String
+				
 			} else {
 				out.print("{\"retCod\":\"Fail\"}");
 			}
